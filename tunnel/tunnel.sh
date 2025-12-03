@@ -1,6 +1,9 @@
-#!bin/sh
+#!/bin/bash
+
+set -e
 
 DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+SSHCONTROL=${DIR}/ssh-control
 
 id=$(cat ${DIR}/id)
 if [ ! -f id ]; then
@@ -8,28 +11,31 @@ if [ ! -f id ]; then
         exit 1
 fi
 
-PIDFILE=${DIR}/tunnel.pid
-config=$(curl -s https://sammcloud.com/tunnel/${id}/config.json)
-up=$(    echo ${config} | jq ".up")
-port=$(  echo ${config} | jq ".port")
-server=$(echo ${config} | jq ".server")
-process_running="0"
-current_pid=""
-if [ -f ${PIDFILE} ]; then
-        current_pid=$(cat ${PIDFILE})
-        if ps -p ${current_pid} > /dev/null; then
-                process_running="1"
-        else
-                rm ${PIDFILE}
-                current_pid=""
-        fi
+set +e
+config=$(curl -f -s https://sammcloud.com/tunnel/${id}/config.json)
+if [ "$?" != "0" ]; then
+        echo "Configuration not found in the cloud." >&2
+        exit 1
 fi
+set -e
+up=$(    echo ${config} | jq -r ".up")
+port=$(  echo ${config} | jq -r ".port")
+server=$(echo ${config} | jq -r ".server")
+user=$(  echo ${config} | jq -r ".user")
 
-if [ ${up} == "1" ] && [ ${process_running} == "0" ]; then
-        ssh -l${user} -N -T -R ${port}:localhost:22 ${server} &
-        echo "$!" > /tmp/tunnel.pid
-elif [ ${up} == "0" ] && [ ${process_running} == "1" ]; then
-        kill ${current_pid}
-        rm ${PIDFILE}
+if [ "${up}" == "1" ] && [ ! -f ${SSHCONTROL} ]; then
+        set +e
+        ssh -l${user} -q -f -N -T -o StrictHostKeyChecking=no \
+                -o UserKnownHostsFile=/dev/null \
+                -o ControlMaster=yes \
+                -S ${SSHCONTROL} \
+                -R ${port}:localhost:22 ${server}
+        if [ "$?" != "0" ]; then
+                echo "Unable to start ssh tunnel" >&2
+                exit 1
+        fi
+        set -e
+elif [ "${up}" == "0" ] && [ -f ${SSHCONTROL}]; then
+        ssh -S ${SSHCONTROL} -O close ${server}
 fi
 
