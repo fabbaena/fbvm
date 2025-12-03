@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 INSTALL_PATH=/opt/samm_tunnel
 USER=tunneluser
 
@@ -13,7 +15,6 @@ if [ -d ${INSTALL_PATH} ]; then
 	exit 0
 fi
 
-mkdir -p ${INSTALL_PATH}
 if ! id ${USER} 2> /dev/null; then
 	useradd --home-dir ${INSTALL_PATH} --create-home --shell /sbin/nologin ${USER}
 	sudo -u ${USER} ssh-keygen -t rsa -b 2048 -q -f ${INSTALL_PATH}/.ssh/id_rsa -N ""
