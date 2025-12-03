@@ -33,3 +33,8 @@ cat <<EOF > /etc/cron.d/samm_tunnel
 PATH=/usr/lib/sysstat:/usr/sbin:/usr/sbin:/usr/bin:/sbin:/bin
 */5 * * * * ${USER} ${INSTALL_PATH}/tunnel.sh
 EOF
+echo "Id: "
+cat ${INSTALL_PATH}/id
+echo "#####################"
+echo "Public Key:"
+cat ${INSTALL_PATH}/.ssh/id_rsa.pub
