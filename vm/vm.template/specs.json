@@ -1,0 +1,27 @@
+{
+  "arch": "qemu-system-aarch64",
+  "cpus": "2",
+  "ram": "2G",
+  "netdev": [
+    {
+      "type": "vmnet-shared",
+      "mac": "xx:xx:xx:xx:xx:xx"
+    }
+  ],
+  "drives": [
+    {
+      "baseimage": "noble-server-cloudimg-arm64.img",
+      "file": "d0.img",
+      "size": "12G"
+    },
+    {
+      "file": "d1.img",
+      "size": "30G"
+    }
+  ],
+  "metadata": {
+    "file": "floppy.img",
+    "user-data": "user-data",
+    "meta-data": "meta-data"
+  }
+}

@@ -1,0 +1,20 @@
+#cloud-config
+
+package_upgrade: true
+packages:
+  - net-tools
+
+users:
+ - name: fabianbaena
+   ssh_authorized_keys:
+     - ssh-rsa %SSHKEY%
+   sudo: ['ALL=(ALL) NOPASSWD:ALL']
+   groups: [ sudo ]
+   shell: /bin/bash
+   uid: 501
+
+mounts:
+  - [ swap, null ]
+
+runcmd:
+  - echo "done" > /root/done # this section can be removed if not needed

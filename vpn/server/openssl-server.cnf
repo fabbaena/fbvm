@@ -1,0 +1,17 @@
+[ req ]
+distinguished_name = req_distinguished_name
+req_extensions = v3_req
+prompt = no
+
+[req_distinguished_name]
+C = US
+ST = Florida
+L = Miami
+O = Samana Group
+CN = vpn.aws.samana.cloud
+
+[ v3_req ]
+subjectAltName = @alt_names
+
+[ alt_names ]
+DNS.1 = vpn.aws.samana.cloud

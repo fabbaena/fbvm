@@ -1,0 +1,74 @@
+#cloud-config
+
+package_upgrade: true
+packages:
+- qemu-guest-agent
+- strongswan
+- tcpdump
+- net-tools
+
+users:
+ - name: fabianbaena
+   ssh_authorized_keys:
+     - ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAspnBaStPGJQ7TxngdQG3yEzcvQBiQyFf0tsmC9RvgMjFCk4+6F5WoavtV6YeAr0pNdoZAZQH0dy+nVZ1o5/pbqYfnBpxS6WvPUZAk39krdDnGjyD5qowcvcz2mjXwvrghdy718EKw7yNc0BwnN0v5TRWc/aS+hY8Xh9yzh7bFJl
+   sudo: ['ALL=(ALL) NOPASSWD:ALL']
+   primary_group: dialout
+   groups: [ sudo ]
+   shell: /bin/bash
+   uid: 501
+
+write_files:
+  - path: /etc/ipsec.conf
+    content: |
+      # ipsec.conf - strongSwan IPsec configuration file
+      config setup
+        charondebug="all"
+        uniqueids = yes
+
+      conn %default
+        ikelifetime=20m
+        keyingtries=1
+        keyexchange=ikev2
+
+      conn samana-cloud-gateway
+        type=tunnel
+        auto=start
+        authby=pubkey
+        ike=aes128-sha256-modp2048!
+        esp=aes128-sha256-modp2048!
+        right=vpn.aws.samana.cloud
+        rightsubnet=10.0.0.0/8
+        leftcert=fabianb.crt
+        left=%any
+        leftid=DNS:fabianb@samana.aws
+        leftsubnet=192.168.69.0/24
+
+  - path: /etc/ipsec.secrets
+    content: |
+      %any : RSA fabianb.pem
+
+  - path: /etc/ipsec.d/cacerts/root.crt
+    content: |
+      <Replace with root certificate>
+
+  - path: /etc/ipsec.d/certs/fabianb.crt
+    content: |
+      <Replace with user certificate>
+
+  - path: /etc/ipsec.d/private/fabianb.pem
+    content: |
+      <Replace with private key>
+
+  - path: /etc/sysctl.d/90-vpn.conf
+    content: |
+      net.ipv4.ip_forward = 1
+      net.ipv4.conf.all.send_redirects = 0
+      net.ipv4.conf.enp0s2.send_redirects = 0
+
+mounts:
+  - [ swap, null ]
+
+runcmd:
+  - ipsec stop
+  - ipsec start
+  - sysctl --system

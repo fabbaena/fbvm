@@ -1,0 +1,38 @@
+[ req ]
+distinguished_name = req_distinguished_name
+prompt = no
+
+[req_distinguished_name]
+C = US
+ST = Florida
+L = Miami
+O = Samana Group
+CN = Samana VPN Root CA
+
+[ ca ]
+default_ca = ca_default
+
+[ ca_default ]
+dir = /etc/ipsec.d
+certs = $dir/certs
+new_certs_dir = $dir/certs
+database = $dir/ca.db.index
+serial = $dir/root.srl
+RANDFILE = $dir/ca.db.rand
+certificate = $dir/cacerts/root.crt
+private_key = $dir/private/root.pem
+default_days = 365
+default_crl_days = 30
+default_md = md5
+preserve = no
+policy = generic_policy
+copy_extensions = copy
+
+[ generic_policy ]
+countryName = optional
+stateOrProvinceName = optional
+localityName = optional
+organizationName = optional
+organizationalUnitName = optional
+commonName = optional
+emailAddress = optional
