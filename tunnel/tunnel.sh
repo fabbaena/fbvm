@@ -21,7 +21,7 @@ set -e
 up=$(    echo ${config} | jq -r ".up")
 port=$(  echo ${config} | jq -r ".port")
 server=$(echo ${config} | jq -r ".server")
-user=$(  echo ${config} | jq -r ".user")
+user=$(  echo ${config} | jq -r ".username")
 
 if [ "${up}" == "1" ] && [ ! -f ${SSHCONTROL} ]; then
         set +e
@@ -35,7 +35,7 @@ if [ "${up}" == "1" ] && [ ! -f ${SSHCONTROL} ]; then
                 exit 1
         fi
         set -e
-elif [ "${up}" == "0" ] && [ -f ${SSHCONTROL}]; then
-        ssh -S ${SSHCONTROL} -O close ${server}
+elif [ "${up}" == "0" ] && [ -S ${SSHCONTROL} ]; then
+        ssh -S ${SSHCONTROL} -O exit ${server}
 fi
 
