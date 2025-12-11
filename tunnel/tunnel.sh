@@ -5,11 +5,11 @@ set -e
 DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 SSHCONTROL=${DIR}/ssh-control
 
-id=$(cat ${DIR}/id)
-if [ ! -f id ]; then
+if [ ! -f ${DIR}/id ]; then
         echo "Error: missing 'id' file" >&2
         exit 1
 fi
+id=$(cat ${DIR}/id)
 
 set +e
 config=$(curl -f -s https://sammcloud.com/tunnel/${id}/config.json)
